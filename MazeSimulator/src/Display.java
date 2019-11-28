@@ -357,9 +357,9 @@ public class Display extends JApplet{
 	}
 	
 	public double calcDistance(int x, int y, int x1, int y1) {
-		double xMode = Math.pow(x-x1,2);
-		double yMode = Math.pow(y-y1,2);
-		return Math.pow(xMode+yMode,0.5);
+		int xMode = Math.abs(x-x1);
+		int yMode = Math.abs(y-y1);
+		return xMode+yMode;
 	}
 	
 	
@@ -750,7 +750,7 @@ public class Display extends JApplet{
 		int starty = Integer.parseInt(cell.split(" ")[1]);
 		
 		Queue<Coordinate> q = new LinkedList<Coordinate>();
-		Coordinate start = new Coordinate(cell,Integer.MAX_VALUE);
+		Coordinate start = new Coordinate(cell,Integer.MAX_VALUE,0);
 		q.add(start);
 		while (!q.isEmpty()) {
 			Coordinate curCoord = q.remove();
@@ -786,9 +786,9 @@ public class Display extends JApplet{
 				}
 				double score = calcDistance(endx,endy,dx,dy);
 				if (astarmode) {
-					score += calcDistance(startx, starty, dx, dy);
+					score += curCoord.length+1;
 				}
-				q.add(new Coordinate(dx+" "+dy,score));
+				q.add(new Coordinate(dx+" "+dy,score,curCoord.length+1));
 			}
 			Coordinate[] a = new Coordinate[q.size()];
 			q.toArray(a);
@@ -806,9 +806,11 @@ public class Display extends JApplet{
 	class Coordinate{
 		double score;
 		String coord;
-		Coordinate(String content, double score){
+		int length;
+		Coordinate(String content, double score, int length){
 			this.score = score;
 			this.coord = content;
+			this.length = length;
 		}
 		
 		public String toString() {
