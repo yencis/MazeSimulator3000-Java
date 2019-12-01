@@ -1,5 +1,7 @@
 # MazeSimulator3000-Java
-This is the Java code before I rewrote the project in JS on a website (not done yet). Link: Will Add Later
+This is the Java code before I rewrote the project in JS on a website (not done yet).
+Link:
+ + https://dragon564738.github.io/MazeGenerator/
 
 A Java application using Java Swing that lets you do cool stuff with mazes. (Note: Very buggy).
 
