@@ -2,7 +2,7 @@
 This is the Java code before I rewrote the project in JS on a website (not done yet).
 Link:
  + https://dragon564738.github.io/MazeGenerator/
-
+ + Doesn't have cool animations unfortunately.
 A Java application using Java Swing that lets you do cool stuff with mazes. (Note: Very buggy).
 
 
