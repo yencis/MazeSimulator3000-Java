@@ -17,10 +17,10 @@ How to run:
  - Run Display.java
 
 Information:
- - Home shows you the current saved maze that will be simulated. Set Size, Width, and Height in text fields.
- - Generate random generates a random maze and automatically saves it.
- - Simulate simulates (solves) the saved maze. Animated. Choose your algorithm in the Combo Box.
- - Custom Maze opens the custom maze editor. Click on an empty square to place a wall. Click a wall to get rid of it. Right click for start and finish.
- - Use Custom Maze saves the custom maze.
- - Export maze saves the maze into a maze.txt file. This file is overwritten every export/run so please copy the file.
- - Import maze imports the maze using the file path given in that text box.
+ - "Home" shows you the current saved maze that will be simulated. Set Size, Width, and Height in text fields.
+ - "Generate Random" generates a random maze and automatically saves it.
+ - "Simulate" simulates (solves) the saved maze. Animated. Choose your algorithm in the Combo Box. (Includes DFS, BFS, Greedy, and more)
+ - "Custom Maze" opens the custom maze editor. Click on an empty square to place a wall. Click a wall to get rid of it. Right click for start and finish.
+ - "Use Custom Maze" saves the custom maze.
+ - "Export Maze" saves the maze into a maze.txt file. This file is overwritten every export/run so please copy the file.
+ - "Import Maze" imports the maze using the file path given in that text box.
