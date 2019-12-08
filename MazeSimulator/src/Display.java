@@ -21,27 +21,27 @@ import java.util.*;
 
 public class Display extends JApplet{
 	
-	int WIDTHMAZE = 50;
-	int HEIGHTMAZE = 50;
-	double SIZEMAZE = 0.2;
+	static int WIDTHMAZE = 50;
+	static int HEIGHTMAZE = 50;
+	static double SIZEMAZE = 0.2;
 	
-	int SIDELENGTH = 40;
-	int INNERSIDELENGTH = 35;
-	String FONTSTYLE = "Dialog";
-	boolean mazeDrawn = false;
-	JButton inputMaze;
-	CustomMouse ev;
-	CustomKey kc;
+	static int SIDELENGTH = 40;
+	static int INNERSIDELENGTH = 35;
+	static String FONTSTYLE = "Dialog";
+	static boolean mazeDrawn = false;
+	static JButton inputMaze;
+	static CustomMouse ev;
+	static CustomKey kc;
 	CustomItem ci;
 	int[][] customMaze;
 	boolean customMazeHasStart = false;
 	boolean customMazeHasEnd = false;
-	boolean home = true;
+	static boolean home = true;
 	boolean random = false;
 	boolean draw = false;
-	boolean simulate = false;
-	boolean doPath = false;
-	boolean iddfsFound = false;
+	static boolean simulate = false;
+	static boolean doPath = false;
+	static boolean iddfsFound = false;
 	ArrayList<String> iddfsPath = null;
 	TextField tf;
 	TextField tf2;
@@ -49,6 +49,7 @@ public class Display extends JApplet{
 	TextField imports;
 	JComboBox<String> cb;
 	JPanel panel;
+	TreeAlg t;
 	
 	int[][] simulateMaze = new int[HEIGHTMAZE][WIDTHMAZE];
 	
@@ -95,7 +96,6 @@ public class Display extends JApplet{
 		//add(cb);
 		repaint();
 		//cb.revalidate();
-		
 	}
 	
 	public void paint(Graphics g) {
@@ -273,10 +273,15 @@ public class Display extends JApplet{
 			int index = cb.getSelectedIndex();
 			if (index==0) {
 				int[][] tempMaze = copyMatrix(simulateMaze,HEIGHTMAZE,WIDTHMAZE);
-				dfs(tempMaze, goal, end, (int)(1000/(HEIGHTMAZE+WIDTHMAZE)), g);
+				t = new TreeAlg(SIZEMAZE,g);
+				t.simulate = true;
+				t.dfs(tempMaze, goal, end, (int)(1000/(HEIGHTMAZE+WIDTHMAZE)));
+				//dfs(tempMaze, goal, end, (int)(1000/(HEIGHTMAZE+WIDTHMAZE)), g);
 			}else if (index == 1) {
 				int[][] tempMaze = copyMatrix(simulateMaze,HEIGHTMAZE,WIDTHMAZE);
-				ArrayList<String> solution = bfs(tempMaze, goal, end, (int)(1000/(HEIGHTMAZE+WIDTHMAZE)), g);
+				t = new TreeAlg(SIZEMAZE,g);
+				t.simulate = true;
+				ArrayList<String> solution = t.bfs(tempMaze, goal, end, (int)(1000/(HEIGHTMAZE+WIDTHMAZE)));
 				for (int i = 0;i<solution.size();i++) {
 					String cell = solution.get(i);
 					int x = Integer.parseInt(cell.split(" ")[0]);
@@ -287,6 +292,7 @@ public class Display extends JApplet{
 				}
 				System.out.println(solution);
 			}else if (index == 2) {
+				t = new TreeAlg(SIZEMAZE,g);
 				iddfsFound = false;
 				int iter = 0;
 				int[][] originalMaze = copyMatrix(simulateMaze,HEIGHTMAZE,WIDTHMAZE);
@@ -295,7 +301,7 @@ public class Display extends JApplet{
 					ArrayList<String> path = new ArrayList<String>();
 					path.add(goal);
 					iter++;
-					iddfs(simulateMaze, goal, end, (int)(1000/(HEIGHTMAZE+WIDTHMAZE)), g, 0, iter,path);
+					t.iddfs(simulateMaze, goal, end, (int)(1000/(HEIGHTMAZE+WIDTHMAZE)), 0, iter,path);
 					
 					simulateMaze = copyMatrix(originalMaze,HEIGHTMAZE,WIDTHMAZE);
 					if (!iddfsFound) {
@@ -326,12 +332,15 @@ public class Display extends JApplet{
 					iddfsPath = null;
 				}
 				System.out.println("IDDFS Done");
+				iddfsPath = null;
 			}else if (index  == 3) { //greedy search
 				int[][] tempMaze = copyMatrix(simulateMaze,HEIGHTMAZE,WIDTHMAZE);
-				greedySearch(tempMaze, goal, end, (1000/(HEIGHTMAZE+WIDTHMAZE)), g, false);
+				t = new TreeAlg(SIZEMAZE,g);
+				t.greedySearch(tempMaze, goal, end, (1000/(HEIGHTMAZE+WIDTHMAZE)), false);
 			}else if (index == 4) { //a* search
 				int[][] tempMaze = copyMatrix(simulateMaze,HEIGHTMAZE,WIDTHMAZE);
-				greedySearch(tempMaze, goal, end, (1000/(HEIGHTMAZE+WIDTHMAZE)), g, true);
+				t = new TreeAlg(SIZEMAZE,g);
+				t.greedySearch(tempMaze, goal, end, (1000/(HEIGHTMAZE+WIDTHMAZE)), true);
 			}
 			
 			
@@ -401,7 +410,7 @@ public class Display extends JApplet{
 	
 	
 	
-	public void drawSquare(Graphics g, int x, int y, double size) {    //default size 1
+	public static void drawSquare(Graphics g, int x, int y, double size) {    //default size 1
 		int sideLength = (int) ((int)SIDELENGTH*size);
 		int sideLengthInner = (int) ((int)INNERSIDELENGTH*size);
 		if (doPath) {
@@ -618,214 +627,5 @@ public class Display extends JApplet{
 			// TODO Auto-generated method stub
 			//System.out.println(cb.getSelectedIndex());
 		}
-		
 	}
-	
-	public void dfs(int[][] maze, String cell, String end, int speed, Graphics g) {
-		if (cell.contentEquals(end)) {
-			System.out.println("Finished");
-			simulate = false;
-			return;
-		}else if (simulate){			
-			int x = Integer.parseInt(cell.split(" ")[0]);
-			int y = Integer.parseInt(cell.split(" ")[1]);
-			try {
-				if (maze[y][x]==1)return;
-			}catch(Exception e) {
-				return;
-			}
-			maze[y][x] = 1;
-			drawSquare(g,(int)(x*40*SIZEMAZE),(int)(y*40*SIZEMAZE),SIZEMAZE);
-			try {
-				Thread.sleep(speed);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			for (int i = 0;i<4;i++) {
-				switch(i) {
-				case 3:dfs(maze,x+" "+(y-1),end,speed,g);break;
-				case 1:dfs(maze,(x+1)+" "+(y),end,speed,g);break;
-				case 0:dfs(maze,(x-1)+" "+(y),end,speed,g);break;
-				case 2:dfs(maze,(x)+" "+(y+1),end,speed,g);break;				
-				}
-			}
-			
-		}else {
-			return;
-		}		
-	}
-	
-	@SuppressWarnings("unchecked")
-	public ArrayList<String> bfs(int[][] maze, String cell, String end, int speed, Graphics g){
-		Queue<ArrayList<String>> q = new LinkedList<ArrayList<String>>();
-		ArrayList<String> path = new ArrayList<String>();
-		path.add(cell);
-		q.add(path);
-		ArrayList<String> answer = new ArrayList<String>();
-		while (!q.isEmpty()){
-			ArrayList<String> curPath = q.remove();
-			String curCell = curPath.get(curPath.size()-1);
-			if (curCell.contentEquals(end)) {
-				answer = curPath;
-				break;
-			}
-			int x = Integer.parseInt(curCell.split(" ")[0]);
-			int y = Integer.parseInt(curCell.split(" ")[1]);
-			try {
-				if (maze[y][x]==1)continue;
-			}catch(Exception e) {
-				continue;
-			}
-			maze[y][x] = 1;
-			drawSquare(g,(int)(x*40*SIZEMAZE),(int)(y*40*SIZEMAZE),SIZEMAZE);
-			try {
-				Thread.sleep(speed);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			for (int i = 0;i<4;i++) {
-				switch(i) {
-				case 0:curPath.add((x)+" "+(y-1));break;
-				case 1:curPath.add((x+1)+" "+(y));break;
-				case 2:curPath.add((x-1)+" "+(y));break;
-				case 3:curPath.add((x)+" "+(y+1));break;				
-				}
-				q.add((ArrayList<String>) curPath.clone());
-				curPath.remove(curPath.size()-1);
-			}
-		}
-		System.out.println("BFS Done");
-		return answer;
-	}
-	
-	public void iddfs(int[][] maze, String cell, String end, int speed, Graphics g, int iterations, int maxIter,ArrayList<String> path) {
-		if (cell.contentEquals(end)) {
-			System.out.println("Finished");
-			simulate = false;
-			iddfsFound = true;
-			iddfsPath = path;
-			return;
-		}else if(iterations==maxIter) {
-			return;
-		}else if (simulate){			
-			int x = Integer.parseInt(cell.split(" ")[0]);
-			int y = Integer.parseInt(cell.split(" ")[1]);
-			try {
-				if (maze[y][x]==1)return;
-			}catch(Exception e) {
-				return;
-			}
-			maze[y][x] = 1;
-			drawSquare(g,(int)(x*40*SIZEMAZE),(int)(y*40*SIZEMAZE),SIZEMAZE);
-			try {
-				Thread.sleep(speed);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			for (int i = 0;i<4;i++) {
-				switch(i) {
-				case 0:path.add(x+" "+(y-1));iddfs(maze,x+" "+(y-1),end,speed,g,iterations+1,maxIter,(ArrayList<String>) path.clone());break;
-				case 1:path.add((x+1)+" "+(y));iddfs(maze,(x+1)+" "+(y),end,speed,g,iterations+1,maxIter,(ArrayList<String>) path.clone());break;
-				case 2:path.add((x-1)+" "+(y));iddfs(maze,(x-1)+" "+(y),end,speed,g,iterations+1,maxIter,(ArrayList<String>) path.clone());break;
-				case 3:path.add(x+" "+(y+1));iddfs(maze,(x)+" "+(y+1),end,speed,g,iterations+1,maxIter,(ArrayList<String>) path.clone());break;				
-				}
-				path.remove(path.size()-1);
-			}
-			
-		}else {
-			return;
-		}		
-	}
-	
-	public void greedySearch(int[][] maze, String cell, String end, int speed, Graphics g, boolean astarmode) {
-		
-		int endx = Integer.parseInt(end.split(" ")[0]);
-		int endy = Integer.parseInt(end.split(" ")[1]);
-		
-		int startx = Integer.parseInt(cell.split(" ")[0]);
-		int starty = Integer.parseInt(cell.split(" ")[1]);
-		
-		Queue<Coordinate> q = new LinkedList<Coordinate>();
-		Coordinate start = new Coordinate(cell,Integer.MAX_VALUE,0);
-		q.add(start);
-		while (!q.isEmpty()) {
-			Coordinate curCoord = q.remove();
-			String curCell = curCoord.coord;
-			if (curCell.contentEquals(end)) {
-				System.out.println("Found");
-				break;
-			}
-			int x = Integer.parseInt(curCell.split(" ")[0]);
-			int y = Integer.parseInt(curCell.split(" ")[1]);
-			try {
-				if (maze[y][x]==1)continue;
-			}catch(Exception e) {
-				continue;
-			}
-			maze[y][x] = 1;
-			drawSquare(g,(int)(x*40*SIZEMAZE),(int)(y*40*SIZEMAZE),SIZEMAZE);
-			try {
-				Thread.sleep(speed);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			for (int i = 0;i<4;i++) {
-				int dx = 0;
-				int dy = 0;
-				switch(i) {
-				case 0:dx = x; dy = y-1;break;
-				case 1:dx = x+1; dy = y;break;
-				case 2:dx = x-1; dy = y;break;
-				case 3:dx = x; dy = y+1;break;				
-				}
-				double score = calcDistance(endx,endy,dx,dy);
-				if (astarmode) {
-					score += curCoord.length+1;
-				}
-				q.add(new Coordinate(dx+" "+dy,score,curCoord.length+1));
-			}
-			Coordinate[] a = new Coordinate[q.size()];
-			q.toArray(a);
-			Arrays.sort(a,new compCoord());
-			q = new LinkedList<Coordinate>(Arrays.asList(a));
-		}
-		System.out.println("Greedy done");
-		return;
-		
-		
-		
-		
-	}
-	
-	class Coordinate{
-		double score;
-		String coord;
-		int length;
-		Coordinate(String content, double score, int length){
-			this.score = score;
-			this.coord = content;
-			this.length = length;
-		}
-		
-		public String toString() {
-			return coord;
-		}
-	}
-	
-	class compCoord implements Comparator<Coordinate>{
-
-		public int compare(Coordinate a, Coordinate b) {
-			// TODO Auto-generated method stub
-			return (int)((a.score-b.score)*100);
-		}
-		
-	}
-	
-	
 }
